@@ -1,0 +1,2 @@
+import { stats,projects } from '@/lib/demo'
+export default function D(){return <div className='space-y-4'><h1 className='text-2xl font-bold'>Dashboard</h1><div className='grid grid-cols-3 gap-3'>{Object.entries(stats).map(([k,v])=><div key={k} className='card'><p className='text-xs text-slate-500'>{k}</p><p className='text-2xl font-bold'>{v}</p></div>)}</div><div className='card'><h2 className='font-semibold mb-2'>Recent activity</h2>{projects.map(p=><p key={p.code}>Updated log in {p.name}</p>)}</div></div>}
