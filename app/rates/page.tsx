@@ -1,3 +1,5 @@
-import { QuickForm } from '@/components/quick-form'
-import { SimpleTable } from '@/components/simple-table'
-export default function Page(){return <div className='space-y-4'><h1 className='text-2xl font-bold capitalize'>rates</h1><QuickForm title='Create rates record' fields={['name','code','status']}/><SimpleTable title='rates list' headers={['Name','Status']} rows={[["Sample","active"],["Demo","draft"]]}/></div>}
+'use client'
+import { useState } from 'react';import { loadStore, makeId, saveStore } from '@/lib/store';
+export default function Page(){const [s,setS]=useState(loadStore());const [f,setF]=useState({supplier_id:s.suppliers[0]?.id||'',plant_id:s.plants[0]?.id||'',project_id:'',rate_type:'hourly',hourly_rate:0,currency:'USD',effective_from:'',effective_to:''});
+const add=()=>{if(f.hourly_rate<=0||!f.effective_from){alert('positive rate and effective_from required');return;}const ns={...s,rates:[...s.rates,{...f,id:makeId('r')} as any]};setS(ns);saveStore(ns)}
+return <div><h1 className='text-2xl font-bold'>Rates</h1><div className='card'><input type='number' placeholder='hourly_rate' onChange={e=>setF({...f,hourly_rate:Number(e.target.value)})}/><input type='date' onChange={e=>setF({...f,effective_from:e.target.value})}/><button onClick={add}>Create</button></div>{s.rates.map(r=><div key={r.id} className='card'>Plant {s.plants.find(p=>p.id===r.plant_id)?.name} : ${r.hourly_rate}/hr</div>)}</div>}

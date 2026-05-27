@@ -1,3 +1,6 @@
-import { QuickForm } from '@/components/quick-form'
-import { SimpleTable } from '@/components/simple-table'
-export default function Page(){return <div className='space-y-4'><h1 className='text-2xl font-bold capitalize'>logs</h1><QuickForm title='Create logs record' fields={['name','code','status']}/><SimpleTable title='logs list' headers={['Name','Status']} rows={[["Sample","active"],["Demo","draft"]]}/></div>}
+'use client'
+import { useState } from 'react';import { loadStore, makeId, saveStore } from '@/lib/store';
+export default function Page(){const [s,setS]=useState(loadStore()); const [f,setF]=useState({date:'',project_id:s.projects[0]?.id||'',supplier_id:s.suppliers[0]?.id||'',plant_id:s.plants[0]?.id||'',hours_worked:0,idle_hours:0,breakdown_hours:0,description:'',status:'draft'} as any)
+const create=()=>{if(!f.date||f.hours_worked<0){alert('invalid');return;} const ns={...s,logs:[...s.logs,{...f,id:makeId('l')}]};setS(ns);saveStore(ns)}
+const submit=(id:string)=>{const ns={...s,logs:s.logs.map(l=>l.id===id&&l.status==='draft'?{...l,status:'submitted'}:l)};setS(ns);saveStore(ns)}
+return <div><h1 className='text-2xl font-bold'>Daily Logs</h1><div className='card'><input type='date' onChange={e=>setF({...f,date:e.target.value})}/><input type='number' placeholder='hours' onChange={e=>setF({...f,hours_worked:Number(e.target.value)})}/><input placeholder='description' onChange={e=>setF({...f,description:e.target.value})}/><button onClick={create}>Create draft</button></div>{s.logs.map(l=><div key={l.id} className='card'>{l.date} {l.description} ({l.status}) {l.status==='draft'&&<button onClick={()=>submit(l.id)}>Submit</button>}</div>)}</div>}

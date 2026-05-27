@@ -1,3 +1,6 @@
-import { QuickForm } from '@/components/quick-form'
-import { SimpleTable } from '@/components/simple-table'
-export default function Page(){return <div className='space-y-4'><h1 className='text-2xl font-bold capitalize'>plants</h1><QuickForm title='Create plants record' fields={['name','code','status']}/><SimpleTable title='plants list' headers={['Name','Status']} rows={[["Sample","active"],["Demo","draft"]]}/></div>}
+'use client'
+import { useMemo, useState } from 'react';import { loadStore, makeId, saveStore } from '@/lib/store';
+export default function Page(){const [s,setS]=useState(loadStore());const [status,setStatus]=useState('');const [f,setF]=useState({name:'',plant_code:'',category:'',supplier_id:s.suppliers[0]?.id||'',unit_type:'hour',status:'available'});
+const add=()=>{if(!f.name||!f.plant_code){alert('name/code required');return;}const ns={...s,plants:[...s.plants,{...f,id:makeId('pl')} as any]};setS(ns);saveStore(ns)}
+const rows=useMemo(()=>s.plants.filter(p=>!status||p.status===status),[s,status]);
+return <div className='space-y-3'><h1 className='text-2xl font-bold'>Plants</h1><div><select value={status} onChange={e=>setStatus(e.target.value)}><option value=''>All statuses</option><option>available</option><option>in_use</option><option>maintenance</option></select></div><div className='card'>{['name','plant_code','category','unit_type'].map(k=><input key={k} placeholder={k} className='border p-2 mr-2' value={(f as any)[k]} onChange={e=>setF({...f,[k]:e.target.value})}/>)}<button onClick={add}>Create</button></div>{rows.map(p=><div key={p.id} className='card'>{p.name} - {p.category} - {p.status}</div>)}</div>}
