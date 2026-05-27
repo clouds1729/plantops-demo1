@@ -1,35 +1,32 @@
-# PlantOps Demo (Plant_Manager_1)
+# PlantOps Demo MVP
 
 ## Setup
 1. `npm install`
-2. Set env vars:
+2. Optional Supabase env vars:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
 3. `npm run dev`
 
-## Database
-- Run Supabase migration at `supabase/migrations/20260527070000_init.sql`.
-- Includes core multi-tenant tables, indexes, basic RLS starter policy, and workflow entities.
+## Demo/Data Mode
+- App uses local demo fallback state in `localStorage` via `lib/store.ts`.
+- Seed includes Acme Civil Works org context, 2 projects, 3 suppliers, 8 plants, mixed logs, rates (with one intentional missing rate), approvals, and one finalized IPC.
+- If Supabase is wired later, replace store adapters with Supabase read/write calls.
 
-## Demo seed data
-Use SQL inserts (or your existing seed flow) to create:
-- Org: **Acme Civil Works**
-- Users: `owner@example.com`, `manager@example.com`, `clerk@example.com`, `supplier@example.com`
-- Projects: Airport Road Expansion, North Bridge Repair
-- 3 suppliers, 8-12 plants, rates, mixed-status logs, and one finalized IPC.
+## Env Vars
+- Supabase vars above are optional for this MVP fallback mode.
 
-## Demo script
-1. Login
-2. View dashboard
-3. Create daily log
-4. Submit log
-5. Approve log
-6. Generate IPC preview
-7. Finalize IPC
-8. Import CSV/XLSX logs
+## Investor Demo Script
+1. Open `/dashboard` for KPI cards + activity.
+2. Create/edit records in `/projects`, `/suppliers`, `/plants`, `/rates`.
+3. Create draft log in `/logs`, then submit.
+4. Approve/reject queue items in `/approvals`.
+5. Open `/ipc-preview`, verify warnings for missing rates, finalize valid periods.
+6. Inspect finalized IPC and line items in `/ipcs`.
+7. Use `/imports` sample CSV, preview validation, import valid rows.
+8. Open `/settings/team`, add member and change role.
 
-## Known MVP limitations
-- Supabase auth + mutations are wired as demo placeholders in UI pages.
-- Import page UI is scaffolded; parser/upload workflow should be connected to Supabase storage/server action in your environment.
-- RLS is safe-starter and should be expanded for full per-role granularity before production.
+## Known limitations
+- Uses demo local store fallback only (no persistent server DB writes yet).
+- IPC tax is placeholder 0.
+- CSV parser is intentionally lightweight for demo speed.

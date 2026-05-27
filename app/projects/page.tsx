@@ -1,3 +1,5 @@
-import { QuickForm } from '@/components/quick-form'
-import { SimpleTable } from '@/components/simple-table'
-export default function Page(){return <div className='space-y-4'><h1 className='text-2xl font-bold capitalize'>projects</h1><QuickForm title='Create projects record' fields={['name','code','status']}/><SimpleTable title='projects list' headers={['Name','Status']} rows={[["Sample","active"],["Demo","draft"]]}/></div>}
+'use client'
+import { useState } from 'react';import { loadStore, makeId, saveStore } from '@/lib/store';
+export default function Page(){const [s,setS]=useState(loadStore());const [f,setF]=useState({name:'',code:'',location:'',status:'active',start_date:'',end_date:''});
+const add=()=>{if(!f.name||!f.code){alert('name/code required');return;} const n={...f,id:makeId('p')} as any;const ns={...s,projects:[...s.projects,n]};setS(ns);saveStore(ns)}
+return <div><h1 className='text-2xl font-bold mb-3'>Projects</h1><div className='card mb-3 space-x-2'>{['name','code','location','start_date','end_date'].map(k=><input key={k} placeholder={k} className='border p-2 mr-2' value={(f as any)[k]} onChange={e=>setF({...f,[k]:e.target.value})}/>)}<button className='bg-slate-900 text-white px-3 py-2 rounded' onClick={add}>Create</button></div><table><tbody>{s.projects.map(p=><tr key={p.id}><td>{p.name}</td><td className='px-3'>{p.code}</td><td>{p.location}</td><td>{p.status}</td></tr>)}</tbody></table></div>}

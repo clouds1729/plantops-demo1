@@ -1,3 +1,7 @@
-import { QuickForm } from '@/components/quick-form'
-import { SimpleTable } from '@/components/simple-table'
-export default function Page(){return <div className='space-y-4'><h1 className='text-2xl font-bold capitalize'>imports</h1><QuickForm title='Create imports record' fields={['name','code','status']}/><SimpleTable title='imports list' headers={['Name','Status']} rows={[["Sample","active"],["Demo","draft"]]}/></div>}
+'use client'
+import { useState } from 'react';import { parseCsv } from '@/lib/imports.parse-logs';import { loadStore, makeId, saveStore } from '@/lib/store';import { validateRow } from '@/lib/import-validation';
+const sample=`date,project_code,supplier_name,plant_code,hours_worked,idle_hours,breakdown_hours,description\n2026-05-18,ARE-01,Atlas Plant Hire,AT-EX-01,8,0,0,Excavation works`
+export default function Page(){const [txt,setTxt]=useState(sample);const [preview,setPreview]=useState<any[]>([]);const [s,setS]=useState(loadStore());
+const parse=()=>{const rows=parseCsv(txt);setPreview(rows.map(r=>({...r,v:validateRow(r as any,{projects:new Set(s.projects.map(p=>p.code)),suppliers:new Set(s.suppliers.map(x=>x.name)),plants:new Set(s.plants.map(p=>p.plant_code)))})))}
+const importRows=(status:'draft'|'submitted')=>{const valid=preview.filter(r=>r.v.valid);const logs=valid.map(r=>({id:makeId('l'),date:r.date,project_id:s.projects.find(p=>p.code===r.project_code)!.id,supplier_id:s.suppliers.find(x=>x.name===r.supplier_name)!.id,plant_id:s.plants.find(p=>p.plant_code===r.plant_code)!.id,hours_worked:r.hours_worked,idle_hours:r.idle_hours,breakdown_hours:r.breakdown_hours,description:r.description,status}));const ns={...s,logs:[...s.logs,...logs]};setS(ns);saveStore(ns)}
+return <div><h1 className='text-2xl font-bold'>Imports</h1><pre>{sample}</pre><textarea className='border p-2 w-full h-32' value={txt} onChange={e=>setTxt(e.target.value)} /><button onClick={parse}>Preview</button><button onClick={()=>importRows('draft')}>Import as Draft</button>{preview.map((r,i)=><div key={i}>{r.project_code} - {r.v.valid?'valid':r.v.errors.join('; ')}</div>)}</div>}
